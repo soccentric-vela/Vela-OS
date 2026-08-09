@@ -1,0 +1,10 @@
+header:
+  version: 14
+
+repos:
+  meta-vela:
+    url: git@github.com:SiliconCentric/meta-vela.git
+    branch: scarthgap
+    path: meta/meta-vela
+    layers:
+      .:

@@ -1,0 +1,64 @@
+# ─── Yocto build output ───────────────────────────────────────────────────────
+build/
+cache/
+sstate-cache/
+downloads/
+
+# ─── KAS artefacts ────────────────────────────────────────────────────────────
+.kas-cache/
+kas-container
+
+# ─── Yocto / BitBake generated files ─────────────────────────────────────────
+layers/
+bitbake.lock
+pseudodone
+
+# SDK installers
+deploy/**/*.sh
+
+# Compiled Python
+*.pyc
+*.pyo
+__pycache__/
+
+# ─── Docker artefacts ─────────────────────────────────────────────────────────
+docker/**/*.tar
+docker/**/*.tar.gz
+docker/sdk/sdk.sh
+docker/esdk/esdk.sh
+
+# ─── SD card images (large) ───────────────────────────────────────────────────
+*.wic
+*.wic.bz2
+*.wic.bmap
+*.img
+*.img.bz2
+
+# ─── OTA / SWU artefacts ──────────────────────────────────────────────────────
+*.swu
+*.swu.sig
+
+# SWUpdate signing keys — NEVER commit private keys
+meta/*/swupdate/keys/swupdate-private.pem
+**/*.pem
+**/*.key
+!meta/*/recipes-swupdate/*/files/swupdate-public.pem
+
+# ─── Editor / IDE ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+
+deploy/
+
+# Local meta layer: commit meta/meta-vela in-tree, ignore others.
+meta/*
+!meta/meta-vela/
+!meta/meta-vela/**

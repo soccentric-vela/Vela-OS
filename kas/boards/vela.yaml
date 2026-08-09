@@ -1,0 +1,13 @@
+header:
+  version: 14
+  includes:
+    - ../common.yaml
+
+# Generic x86-64 target (genericx86-64 is in meta-yocto-bsp, part of poky).
+# Hardware-neutral default so the build works with no extra BSP layer.
+machine: genericx86-64
+
+local_conf_header:
+  wks: |
+    # A/B OTA partition layout (see meta/meta-vela/wic/sdimage-x86.wks)
+    WKS_FILE = "sdimage-x86.wks"

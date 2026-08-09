@@ -1,0 +1,31 @@
+header:
+  version: 14
+  includes:
+    - repos/poky.yaml
+    - repos/meta-openembedded.yaml
+    - repos/meta-swupdate.yaml
+    - repos/meta-vela.yaml
+
+distro: poky
+target: vela-image
+
+local_conf_header:
+  base: |
+    # Init manager
+    INIT_MANAGER = "systemd"
+
+    # SD card / eMMC image output
+    IMAGE_FSTYPES = "wic.bz2 wic.bmap ext4"
+
+    # Shared caches (bind-mounted by Docker)
+    DL_DIR     ?= "${TOPDIR}/../cache/downloads"
+    SSTATE_DIR ?= "${TOPDIR}/../cache/sstate-cache"
+
+    # SWUpdate: enable built-in Mongoose web server and progress IPC
+    PACKAGECONFIG:append:pn-swupdate = " webserver"
+
+    # Required by Poky sanity checks (must match LOCALCONF_VERSION in poky)
+    CONF_VERSION = "2"
+
+    # Swupdate specific variables
+    SWUPDATE_INIT = "systemd"
