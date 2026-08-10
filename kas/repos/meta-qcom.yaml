@@ -1,0 +1,9 @@
+header:
+  version: 14
+
+repos:
+  meta-qcom:
+    url: https://github.com/qualcomm-linux/meta-qcom
+    refspec: scarthgap
+    layers:
+      .:

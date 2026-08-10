@@ -3,11 +3,11 @@ header:
   includes:
     - ../common.yaml
 
-# Generic x86-64 target (genericx86-64 is in meta-yocto-bsp, part of poky).
-# Hardware-neutral default so the build works with no extra BSP layer.
-machine: genericx86-64
+# Qualcomm Dragonwing RB3 Gen 2 (QCS6490 / QCM6490 / QCS5430)
+# Machine config lives in meta-qcom (scarthgap).
+machine: qcs6490-rb3gen2-core-kit
 
 local_conf_header:
   wks: |
-    # A/B OTA partition layout (see meta/meta-vela/wic/sdimage-x86.wks)
-    WKS_FILE = "sdimage-x86.wks"
+    # A/B OTA partition layout (see meta/meta-vela/wic/sdimage-qcom.wks)
+    WKS_FILE = "sdimage-qcom.wks"

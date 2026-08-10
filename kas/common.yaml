@@ -2,7 +2,9 @@ header:
   version: 14
   includes:
     - repos/poky.yaml
+    - repos/meta-arm.yaml
     - repos/meta-openembedded.yaml
+    - repos/meta-qcom.yaml
     - repos/meta-swupdate.yaml
     - repos/meta-vela.yaml
 
@@ -29,3 +31,12 @@ local_conf_header:
 
     # Swupdate specific variables
     SWUPDATE_INIT = "systemd"
+
+    # Qualcomm proprietary firmware / GPU / DSP binaries are covered by the
+    # Qualcomm-Technologies-Inc.-Proprietary licence (meta-qcom). Accept the
+    # licences so the BSP firmware can be pulled into the image.
+    LICENSE_FLAGS_ACCEPTED:append = " Qualcomm-Technologies-Inc.-Proprietary"
+
+    # Snapdragon boot uses a FIT/DTB image consumed by UEFI + systemd-boot.
+    # Keep the default boot.img/UKI path from meta-qcom unless overridden by
+    # a board config.

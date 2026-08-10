@@ -1,5 +1,5 @@
 # =============================================================================
-# Vela OS — Intel x86 (LattePanda) Yocto Build System
+# Vela OS — Qualcomm Snapdragon Yocto Build System
 # =============================================================================
 
 # --- Image names -------------------------------------------------------------
@@ -37,7 +37,7 @@ endif
 
 # --- Board -------------------------------------------------------------------
 # Select target board — must match a file in kas/boards/<BOARD>.yaml
-# Boards: vela (genericx86-64 / LattePanda)
+# Boards: vela (QCS6490 RB3 Gen 2)
 BOARD            ?= vela
 KAS_CONFIG       := kas/boards/$(BOARD).yaml
 
@@ -182,8 +182,26 @@ swu: build
 	    { echo "ERROR: No .rootfs.ext4 found. Ensure 'ext4' is in IMAGE_FSTYPES."; exit 1; }
 	@echo "Packaging OTA update from: $(ROOTFS)"
 	@mkdir -p $(BUILD_DIR)/swu
+
+	# --- rootfs ---
 	@gzip -kfc "$(ROOTFS)" > "$(BUILD_DIR)/swu/rootfs.ext4.gz"
-	@sed "s|@@VERSION@@|$(SWU_VERSION)|" \
+
+	# --- kernel + DTB (QCS6490) ---
+	$(eval KERNEL := $(shell find $(BUILD_DIR)/tmp/deploy/images/$(MACHINE) \
+	    -name 'boot.img' -o -name 'Image' 2>/dev/null | sort -V | tail -1))
+	$(eval DTB := $(shell find $(BUILD_DIR)/tmp/deploy/images/$(MACHINE) \
+	    -name 'qcs6490-rb3gen2.dtb' 2>/dev/null | sort -V | tail -1))
+	@test -n "$(KERNEL)" || \
+	    { echo "WARNING: kernel (boot.img/Image) not found — kernel will not be updated in this .swu"; }
+	@test -n "$(DTB)" || \
+	    { echo "WARNING: qcs6490-rb3gen2.dtb not found — DTB will not be updated in this .swu"; }
+	@[ -n "$(KERNEL)" ] && cp "$(KERNEL)" "$(BUILD_DIR)/swu/boot.img" || true
+	@[ -n "$(DTB)" ]    && cp "$(DTB)"    "$(BUILD_DIR)/swu/qcom-qcs6490-rb3gen2.dtb" || true
+
+	# --- sw-description ---
+	@sed -e "s|@@VERSION@@|$(SWU_VERSION)|" \
+	    -e "s|@@KERNEL@@|boot.img|" \
+	    -e "s|@@DTB@@|qcom-qcs6490-rb3gen2.dtb|" \
 	    meta/meta-vela/swupdate/sw-description \
 	    > "$(BUILD_DIR)/swu/sw-description"
 	@cp meta/meta-vela/swupdate/pre-install.sh  "$(BUILD_DIR)/swu/"
@@ -196,12 +214,12 @@ swu: build
 	        "$(BUILD_DIR)/swu/sw-description"; \
 	    echo "Packing SIGNED .swu ..."; \
 	    cd "$(BUILD_DIR)/swu" && \
-	        printf 'sw-description\nsw-description.sig\npre-install.sh\npost-install.sh\nrootfs.ext4.gz\n' | \
+	        printf 'sw-description\nsw-description.sig\npre-install.sh\npost-install.sh\nrootfs.ext4.gz\nboot.img\nqcom-qcs6490-rb3gen2.dtb\n' | \
 	        cpio -ov -H newc > "$(BUILD_DIR)/$(BOARD)-$(SWU_VERSION).swu"; \
 	else \
 	    echo "WARNING: No private key found — packing UNSIGNED .swu (run scripts/generate-swu-keys.sh to enable signing)"; \
 	    cd "$(BUILD_DIR)/swu" && \
-	        printf 'sw-description\npre-install.sh\npost-install.sh\nrootfs.ext4.gz\n' | \
+	        printf 'sw-description\npre-install.sh\npost-install.sh\nrootfs.ext4.gz\nboot.img\nqcom-qcs6490-rb3gen2.dtb\n' | \
 	        cpio -ov -H newc > "$(BUILD_DIR)/$(BOARD)-$(SWU_VERSION).swu"; \
 	fi
 	@echo "OTA package: $(BUILD_DIR)/$(BOARD)-$(SWU_VERSION).swu"
@@ -305,5 +323,5 @@ help:
 	@printf "\nUtilities:\n"
 	@printf "  %-24s %s\n" "completion"         "Install bash tab-completion"
 	@printf "\nBoards:\n"
-	@printf "  vela (genericx86-64 / LattePanda)\n"
+	@printf "  vela (QCS6490 RB3 Gen 2)\n"
 	@printf "\n"

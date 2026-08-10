@@ -1,21 +1,19 @@
-# Vela-OS — Yocto embedded Linux (generic x86-64)
+# Vela-OS — Yocto embedded Linux for Qualcomm Snapdragon
 
 ## Overview
 
-Vela-OS is the Yocto/OpenEmbedded build system for the **Vela** platform.
-This repository is a **hardware-neutral** build template targeting
-`genericx86-64` (EFI/GRUB boot) by default, so it builds out of the box with
-no vendor BSP layer. Board, processor, carrier, boot firmware, storage,
-kernel, and vendor BSP details are meant to be supplied by a target
-configuration (see `kas/boards/*.yaml`). Built with
-[kas](https://kas.readthedocs.io/) + Docker, with A/B OTA updates via
+Vela-OS is the Yocto/OpenEmbedded build system for the **Vela** platform — the
+**Qualcomm Snapdragon** (QCS6490 / QCM6490 / QCS5430) SoC. Default board:
+**Dragonwing RB3 Gen 2** (machine `qcs6490-rb3gen2-core-kit`). Built with
+[kas](https://kas.readthedocs.io/) + Docker against the `meta-qcom`
+(scarthgap) layer set, with A/B OTA updates via
 [swupdate](https://sbabic.github.io/swupdate/).
 
 ## Quick Start
 
 ```bash
 make kas-image            # Build the KAS Docker image (once)
-make image vela           # Build the Yocto image (genericx86-64)
+make image vela           # Build the Yocto image (QCS6490 RB3 Gen 2)
 ```
 
 ## Build Targets
@@ -31,11 +29,18 @@ make swu                    Build .swu OTA package
 make flash  vela DEVICE=/dev/sdX   Flash image to SD card
 ```
 
+## Boot Flow (QCS6490 RB3 Gen 2)
+
+```
+UEFI firmware → systemd-boot → Linux (boot.img + qcom/qcs6490-rb3gen2.dtb)
+             → systemd → Vela-HAL, Vela services
+```
+
 ## A/B OTA Layout
 
-Partition table (`meta/meta-vela/wic/sdimage-x86.wks`, EFI GPT):
+Partition table (`meta/meta-vela/wic/sdimage-qcom.wks`, EFI GPT):
 ```
-  p1  /boot   EFI FAT32   Image, grub.cfg
+  p1  /boot   EFI FAT32   systemd-boot / UKI
   p2  /       rootfs-a (active initially)
   p3  standby rootfs-b (OTA target)
   p4  /home   persistent, grown on first boot by vela-data-init
@@ -49,8 +54,10 @@ SWUpdate scripts switch slots by filesystem label (`rootfs-a`/`rootfs-b`).
 
 | Layer               | Source                        | Purpose                              |
 |---------------------|-------------------------------|--------------------------------------|
-| `poky`              | poky (scarthgap)              | OE core + genericx86-64 machine     |
+| `poky`              | poky (scarthgap)              | OE core                              |
+| `meta-arm`          | meta-arm (scarthgap)          | ARM BSP / ATF                        |
 | `meta-oe`           | meta-openembedded (scarthgap) | Package set                          |
+| `meta-qcom`         | qualcomm-linux/meta-qcom (scarthgap) | Qualcomm Snapdragon BSP   |
 | `meta-swupdate`     | sbabic/meta-swupdate (scarthgap) | swupdate OTA framework           |
 | `meta-vela`         | SiliconCentric/meta-vela (local, in `meta/`) | Vela image, HAL, swu config |
 
@@ -61,5 +68,5 @@ SWUpdate scripts switch slots by filesystem label (`rootfs-a`/`rootfs-b`).
 - `meta/meta-vela` is committed **locally** in this repo (see `.gitignore`);
   upstream layers are cloned by kas into `layers/` and must never be
   hand-edited.
-- Hardware-neutral: add a board config (`kas/boards/<board>.yaml`) and a
-  vendor BSP layer to target a specific platform.
+- Qualcomm proprietary firmware/GPU/DSP binaries are accepted via
+  `LICENSE_FLAGS_ACCEPTED` in `kas/common.yaml`.
