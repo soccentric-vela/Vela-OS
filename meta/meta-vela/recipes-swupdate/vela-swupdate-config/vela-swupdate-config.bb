@@ -1,4 +1,4 @@
-SUMMARY = "SWUpdate runtime configuration and A/B OTA helper scripts for Renesas RZ/G2L"
+SUMMARY = "SWUpdate runtime configuration and A/B OTA helper scripts for Qualcomm Snapdragon"
 DESCRIPTION = "Installs swupdate.cfg, slot-detection scripts, web UI drop-in, \
 boot-watchdog for rollback counter, health-check service, bootcount-reset, \
 and startup wrapper with optional signing + web UI auth."
