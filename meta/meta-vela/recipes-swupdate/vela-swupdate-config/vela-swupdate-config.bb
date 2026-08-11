@@ -20,7 +20,6 @@ SRC_URI = " \
     file://swupdate-public.pem \
 "
 
-S = "${WORKDIR}"
 
 inherit systemd
 

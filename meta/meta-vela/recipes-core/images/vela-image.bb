@@ -8,8 +8,13 @@ require recipes-extended/images/core-image-full-cmdline.bb
 IMAGE_FEATURES += "ssh-server-openssh"
 
 # OTA / swupdate — install the A/B runtime on the QCS6490 machines
-IMAGE_INSTALL:append:qcs6490-rb3gen2-core-kit = " swupdate swupdate-www vela-swupdate-config"
-IMAGE_INSTALL:append:qcm6490-idp = " swupdate swupdate-www vela-swupdate-config"
+#
+# On meta-qcom scarthgap the RB3 Gen 2 is driven by the generic
+# qcom-armv8a machine (the qcs6490-rb3gen2-core-kit machine only exists on
+# meta-qcom master).  The qcom-armv8a machine also supports the RB3 Gen 2
+# and provides systemd-boot/EFI (qcom-common.inc), so the swupdate A/B OTA
+# runtime is enabled here.
+IMAGE_INSTALL:append:qcom-armv8a = " swupdate swupdate-www vela-swupdate-config"
 
 # Home partition init (persistent /home on the data partition)
 IMAGE_INSTALL:append = " vela-data-init"

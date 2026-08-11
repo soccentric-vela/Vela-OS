@@ -9,7 +9,7 @@ Yocto-based embedded Linux OS for the **Qualcomm Snapdragon** platform.
 Built with `kas` + Docker against the `meta-qcom` (scarthgap) layer set, with
 A/B OTA via `swupdate`.
 
-**Board:** default `vela` (machine `qcs6490-rb3gen2-core-kit`, Dragonwing RB3
+**Board:** default `vela` (machine `qcom-armv8a`, Dragonwing RB3
 Gen 2). Platform customization lives in `meta/meta-vela` (committed locally);
 upstream layers (`poky`, `meta-arm`, `meta-openembedded`, `meta-qcom`,
 `meta-swupdate`) are checked out by kas into a **gitignored** `layers/`

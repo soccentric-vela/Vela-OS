@@ -4,10 +4,38 @@ header:
     - ../common.yaml
 
 # Qualcomm Dragonwing RB3 Gen 2 (QCS6490 / QCM6490 / QCS5430)
-# Machine config lives in meta-qcom (scarthgap).
-machine: qcs6490-rb3gen2-core-kit
+#
+# On the meta-qcom *scarthgap* branch the specific
+# qcs6490-rb3gen2-core-kit machine does not exist (it was added to
+# meta-qcom's master/main branch, which targets a newer Yocto).  On
+# scarthgap all contemporary Snapdragon boards — including the RB3 Gen 2
+# (qcs6490-rb3gen2.dtb) — are driven by the generic qcom-armv8a machine,
+# which builds the systemd-boot/EFI UKI image the wic file consumes.
+machine: qcom-armv8a
 
 local_conf_header:
   wks: |
     # A/B OTA partition layout (see meta/meta-vela/wic/sdimage-qcom.wks)
     WKS_FILE = "sdimage-qcom.wks"
+
+  firmware: |
+    # The generic qcom-armv8a machine pulls in firmware for EVERY board it
+    # supports (db410c / db820c / db845c / rb1 / rb2 / rb5), via
+    # MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS consumed by packagegroup-core-boot.
+    # Vela only targets the RB3 Gen 2 (QCS6490), and several of those
+    # upstream firmware sources are dead or have drifted (the RB5 Linaro zip
+    # URL is gone; the db820c/db845c checksums no longer match upstream), so
+    # drop them and pull only the RB3 Gen 2 firmware instead.
+    #
+    # NB: these overrides must live in a globally-parsed config (local.conf),
+    # not in the image recipe, because packagegroup-core-boot expands
+    # MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS in its own recipe datastore.
+    MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS:remove = " \
+        packagegroup-firmware-dragonboard410c \
+        packagegroup-firmware-dragonboard820c \
+        packagegroup-firmware-dragonboard845c \
+        packagegroup-firmware-rb1 \
+        packagegroup-firmware-rb2 \
+        packagegroup-firmware-rb5 \
+    "
+    MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS:append = " packagegroup-firmware-rb3gen2"

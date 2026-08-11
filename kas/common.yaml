@@ -16,6 +16,13 @@ local_conf_header:
     # Init manager
     INIT_MANAGER = "systemd"
 
+    # Cap build parallelism.  With no explicit setting, bitbake would default
+    # to 2x nproc (64 jobs on this host), which OOMs the memory-hungry gcc
+    # bootstrap under cross-compilation (seen as cc1/cc1plus "undefined
+    # reference" link failures).  16 jobs keeps the build reliable.
+    BB_NUMBER_THREADS = "16"
+    PARALLEL_MAKE = "-j 16"
+
     # SD card / eMMC image output
     IMAGE_FSTYPES = "wic.bz2 wic.bmap ext4"
 

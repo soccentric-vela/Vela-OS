@@ -1,5 +1,5 @@
 SUMMARY = "Vela Hardware Abstraction Layer"
-DESCRIPTION = "HAL library for the Vela platform (Zynq UltraScale+ MPSoC), \
+DESCRIPTION = "HAL library for the Vela platform (Qualcomm QCS6490), \
 providing hardware abstraction interfaces."
 HOMEPAGE = "https://github.com/SiliconCentric/Vela-HAL"
 LICENSE = "CLOSED"
@@ -7,8 +7,12 @@ LICENSE = "CLOSED"
 # a LIC_FILES_CHKSUM entry. We point at a stable local file.
 LIC_FILES_CHKSUM = "file://security.md;md5=1606e3c70e7eb33ddfd7fa686c3b5ff0"
 
+# NB: the Vela-HAL *main* branch is only a README stub.  The real product
+# code (CMake project + protos + tests) lives on the `develop` branch, so we
+# must build from `develop`.
 SRC_URI = " \
-    git://github.com/SiliconCentric/Vela-HAL.git;protocol=ssh;user=git;branch=master \
+    git://github.com/SiliconCentric/Vela-HAL.git;protocol=ssh;user=git;branch=develop \
+    file://0001-protos-fallback-grpc_cpp_plugin-for-cross.patch \
     file://security.md \
 "
 SRCREV = "${AUTOREV}"
@@ -18,7 +22,7 @@ S = "${WORKDIR}/git"
 
 inherit cmake
 
-DEPENDS = "protobuf protobuf-native grpc grpc-native abseil-cpp pkgconfig-native"
+DEPENDS = "protobuf protobuf-native grpc grpc-native abseil-cpp googletest pkgconfig-native"
 
 OECMAKE_SOURCEPATH = "${S}"
 OECMAKE_EXTRA_OECMAKE = "-DGRPC_CPP_PLUGIN=${STAGING_BINDIR_NATIVE}/grpc_cpp_plugin"

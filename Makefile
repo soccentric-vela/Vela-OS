@@ -114,11 +114,10 @@ sdk-image: ensure-image kas-container-script
 	@echo "Building Yocto SDK + Docker image for $(SDK_IMAGE)"
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
 	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake -c populate_sdk $(IMAGE_TARGET)"
-	$(eval _SDK_SH := $(shell find $(BUILD_DIR)/tmp/deploy/sdk -maxdepth 1 \
-	    -name '*.sh' ! -name '*-ext-*' 2>/dev/null | sort -V | tail -1))
-	@test -n "$(_SDK_SH)" || \
-	    { echo "ERROR: SDK installer (.sh) not found"; exit 1; }
-	@cp "$(_SDK_SH)" docker/sdk/sdk.sh && chmod +x docker/sdk/sdk.sh
+	@_SDK_SH="$$(find $(BUILD_DIR)/tmp/deploy/sdk -maxdepth 1 \
+	    -name '*.sh' ! -name '*-ext-*' 2>/dev/null | sort -V | tail -1)"; \
+	 test -n "$$_SDK_SH" || { echo "ERROR: SDK installer (.sh) not found"; exit 1; }; \
+	 cp "$$_SDK_SH" docker/sdk/sdk.sh && chmod +x docker/sdk/sdk.sh
 	$(MAKE) -C docker/sdk \
 	    IMAGE_NAME=$(_SDK_IMAGE_NAME) \
 	    IMAGE_TAG=$(_SDK_IMAGE_TAG) \
@@ -129,11 +128,10 @@ esdk-image: ensure-image kas-container-script
 	@echo "Building Yocto eSDK + Docker image for $(ESDK_IMAGE)"
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
 	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake -c populate_sdk_ext $(IMAGE_TARGET)"
-	$(eval _ESDK_SH := $(shell find $(BUILD_DIR)/tmp/deploy/sdk -maxdepth 1 \
-	    -name '*-ext-*.sh' 2>/dev/null | sort -V | tail -1))
-	@test -n "$(_ESDK_SH)" || \
-	    { echo "ERROR: eSDK installer (*-ext-*.sh) not found"; exit 1; }
-	@cp "$(_ESDK_SH)" docker/esdk/esdk.sh && chmod +x docker/esdk/esdk.sh
+	@_ESDK_SH="$$(find $(BUILD_DIR)/tmp/deploy/sdk -maxdepth 1 \
+	    -name '*-ext-*.sh' 2>/dev/null | sort -V | tail -1)"; \
+	 test -n "$$_ESDK_SH" || { echo "ERROR: eSDK installer (*-ext-*.sh) not found"; exit 1; }; \
+	 cp "$$_ESDK_SH" docker/esdk/esdk.sh && chmod +x docker/esdk/esdk.sh
 	$(MAKE) -C docker/esdk \
 	    IMAGE_NAME=$(_ESDK_IMAGE_NAME) \
 	    IMAGE_TAG=$(_ESDK_IMAGE_TAG) \
@@ -188,7 +186,9 @@ swu: build
 
 	# --- kernel + DTB (QCS6490) ---
 	$(eval KERNEL := $(shell find $(BUILD_DIR)/tmp/deploy/images/$(MACHINE) \
-	    -name 'boot.img' -o -name 'Image' 2>/dev/null | sort -V | tail -1))
+	    \( -name 'boot-qcs6490-rb3gen2-qcom-armv8a.img' \
+	       -o -name 'boot.img' \
+	       -o -name 'Image' \) 2>/dev/null | sort -V | tail -1))
 	$(eval DTB := $(shell find $(BUILD_DIR)/tmp/deploy/images/$(MACHINE) \
 	    -name 'qcs6490-rb3gen2.dtb' 2>/dev/null | sort -V | tail -1))
 	@test -n "$(KERNEL)" || \
@@ -223,7 +223,7 @@ swu: build
 	        cpio -ov -H newc > "$(BUILD_DIR)/$(BOARD)-$(SWU_VERSION).swu"; \
 	fi
 	@echo "OTA package: $(BUILD_DIR)/$(BOARD)-$(SWU_VERSION).swu"
-	@$(MAKE) --no-print-directory deploy-swu DEPLOY_TS=$(DEPLOY_TS)
+	@$(MAKE) --no-print-directory deploy-swu DEPLOY_TS=$(DEPLOY_TS) SWU_VERSION=$(SWU_VERSION)
 
 ## Flash to SD/eMMC.  Usage: make flash vela DEVICE=/dev/sdX
 flash:

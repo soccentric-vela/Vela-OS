@@ -62,3 +62,10 @@ deploy/
 meta/*
 !meta/meta-vela/
 !meta/meta-vela/**
+
+# ─── Upstream Yocto layers checked out by kas at the repo root ──────────────
+meta-arm/
+meta-openembedded/
+meta-qcom/
+meta-swupdate/
+poky/

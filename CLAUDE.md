@@ -4,7 +4,10 @@
 
 Vela-OS is the Yocto/OpenEmbedded build system for the **Vela** platform — the
 **Qualcomm Snapdragon** (QCS6490 / QCM6490 / QCS5430) SoC. Default board:
-**Dragonwing RB3 Gen 2** (machine `qcs6490-rb3gen2-core-kit`). Built with
+**Dragonwing RB3 Gen 2** (machine `qcom-armv8a` — the generic Snapdragon
+machine on meta-qcom's scarthgap branch, which carries the RB3 Gen 2
+`qcs6490-rb3gen2.dtb`; the `qcs6490-rb3gen2-core-kit` machine only exists on
+meta-qcom master). Built with
 [kas](https://kas.readthedocs.io/) + Docker against the `meta-qcom`
 (scarthgap) layer set, with A/B OTA updates via
 [swupdate](https://sbabic.github.io/swupdate/).

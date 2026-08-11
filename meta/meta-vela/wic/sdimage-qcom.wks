@@ -10,10 +10,12 @@
 # new rootfs to the inactive slot (p2 or p3) and flips the boot label to the
 # new PARTUUID.
 
-part /boot --source bootimg-efi --ondisk mmcblk0 --fstype=vfat --label boot --active --align 4096 --fixed-size 512M
+part /boot --source bootimg-efi --sourceparams="loader=systemd-boot" --ondisk mmcblk0 --fstype=vfat --label boot --active --align 4096 --fixed-size 512M
 
 part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label rootfs-a --align 4096 --fixed-size 8192M
 
 part --source empty --ondisk mmcblk0 --fstype=ext4 --label rootfs-b --align 4096 --fixed-size 8192M
 
 part /home --source empty --ondisk mmcblk0 --fstype=ext4 --label home --align 4096 --fixed-size 512M
+
+bootloader --timeout=5 --append="rootwait"
