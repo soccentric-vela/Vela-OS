@@ -1,6 +1,6 @@
 # Vela-OS
 
-**Remote:** `git@github.com:SiliconCentric/Vela-OS.git`
+**Remote:** `git@github.com:soccentric-vela/Vela-OS.git`
 **Parent project:** [Vela](../Vela.md) (target hardware: **Qualcomm Snapdragon** QCS6490 / QCM6490 / QCS5430.)
 **Leaf type:** `<Project>-OS`
 **Status:** REAL — actively built out

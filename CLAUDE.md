@@ -62,7 +62,7 @@ SWUpdate scripts switch slots by filesystem label (`rootfs-a`/`rootfs-b`).
 | `meta-oe`           | meta-openembedded (scarthgap) | Package set                          |
 | `meta-qcom`         | qualcomm-linux/meta-qcom (scarthgap) | Qualcomm Snapdragon BSP   |
 | `meta-swupdate`     | sbabic/meta-swupdate (scarthgap) | swupdate OTA framework           |
-| `meta-vela`         | SiliconCentric/meta-vela (local, in `meta/`) | Vela image, HAL, swu config |
+| `meta-vela`         | soccentric-vela/meta-vela (local, in `meta/`) | Vela image, HAL, swu config |
 
 ## Repo Notes
 
