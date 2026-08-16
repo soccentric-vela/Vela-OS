@@ -3,8 +3,8 @@ header:
 
 repos:
   meta-vela:
-    url: git@github.com:SiliconCentric/meta-vela.git
-    branch: scarthgap
+    url: git@github.com:soccentric-vela/meta-vela.git
+    branch: develop
     path: meta/meta-vela
     layers:
       .:

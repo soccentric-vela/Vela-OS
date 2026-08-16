@@ -58,10 +58,9 @@ Thumbs.db
 
 deploy/
 
-# Local meta layer: commit meta/meta-vela in-tree, ignore others.
+# meta/meta-vela is a nested clone with its own upstream
+# (soccentric-vela/meta-vela.git), fetched by kas — never tracked here.
 meta/*
-!meta/meta-vela/
-!meta/meta-vela/**
 
 # ─── Upstream Yocto layers checked out by kas at the repo root ──────────────
 meta-arm/
