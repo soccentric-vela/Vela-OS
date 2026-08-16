@@ -10,7 +10,8 @@ Built with `kas` + Docker against the `meta-qcom` (scarthgap) layer set, with
 A/B OTA via `swupdate`.
 
 **Board:** default `vela` (machine `qcom-armv8a`, Dragonwing RB3
-Gen 2). Platform customization lives in `meta/meta-vela` (committed locally);
+Gen 2). Platform customization lives in `meta/meta-vela`, a nested clone of its
+own upstream `soccentric-vela/meta-vela` (fetched by kas);
 upstream layers (`poky`, `meta-arm`, `meta-openembedded`, `meta-qcom`,
 `meta-swupdate`) are checked out by kas into a **gitignored** `layers/`
 directory and must never be hand-edited.
@@ -28,8 +29,8 @@ UEFI firmware → systemd-boot → Linux (boot.img + qcom/qcs6490-rb3gen2.dtb)
 `rootfs-b` (switched by swupdate via filesystem label), `data` (`/home`,
 persistent). See `meta/meta-vela/wic/sdimage-qcom.wks`.
 
-**Local layer:** `meta/meta-vela` is committed in-repo (see `.gitignore`),
-matching the Acadia/Arches/Zion/Joshua/Pinnacle/Sequoia convention.
+**Local layer:** `meta/meta-vela` is a nested clone with its own upstream
+at `soccentric-vela/meta-vela.git` (see `.gitignore`).
 
 ---
 Part of the `Vela` project in the `project-managers` fleet. See
