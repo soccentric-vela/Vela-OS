@@ -47,6 +47,8 @@ Layer repos: `poky`, `meta-arm`, `meta-openembedded`, `meta-qcom`,
 
 See `CLAUDE.md` / `REPO_MAP.md` for full details.
 
+## Overview
+
 ## Project Summary
 
 Vela-OS is the containerized Yocto/OpenEmbedded image-build repository for the
