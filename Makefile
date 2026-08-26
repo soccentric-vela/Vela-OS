@@ -3,6 +3,8 @@
 # =============================================================================
 
 # --- Image names -------------------------------------------------------------
+.DEFAULT_GOAL := help
+
 KAS_IMAGE        ?= vela-kas:latest
 SDK_IMAGE        ?= vela-sdk:latest
 ESDK_IMAGE       ?= vela-esdk:latest
@@ -97,20 +99,20 @@ kas-container-script:
 	    chmod +x $(KAS_CONTAINER); \
 	fi
 
-kas-image:
+kas-image: ## Build/rebuild KAS build container
 	$(MAKE) -C docker/yocto \
 	    IMAGE_NAME=$(_KAS_IMAGE_NAME) \
 	    IMAGE_TAG=$(_KAS_IMAGE_TAG) \
 	    KAS_VERSION=$(KAS_VERSION)
 
-ensure-image:
+ensure-image: ## Build KAS image only when absent
 	@docker image inspect $(KAS_IMAGE) >/dev/null 2>&1 \
 	    || { echo "KAS image $(KAS_IMAGE) not found — building ..."; \
 	         $(MAKE) kas-image; }
 
-image: build
+image: build ## Build Yocto SD card image for BOARD
 
-sdk-image: ensure-image kas-container-script
+sdk-image: ensure-image kas-container-script ## Full chain: SDK build → stage → docker build → deploy
 	@echo "Building Yocto SDK + Docker image for $(SDK_IMAGE)"
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
 	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake -c populate_sdk $(IMAGE_TARGET)"
@@ -124,7 +126,7 @@ sdk-image: ensure-image kas-container-script
 	    SDK_INSTALL_DIR=$(SDK_INSTALL_DIR)
 	@$(MAKE) --no-print-directory deploy-sdk DEPLOY_TS=$(DEPLOY_TS)
 
-esdk-image: ensure-image kas-container-script
+esdk-image: ensure-image kas-container-script ## Full chain: eSDK build → stage → docker build → deploy
 	@echo "Building Yocto eSDK + Docker image for $(ESDK_IMAGE)"
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
 	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake -c populate_sdk_ext $(IMAGE_TARGET)"
@@ -148,31 +150,31 @@ ensure-esdk-image:
 	    || { echo "eSDK image $(ESDK_IMAGE) not found — running full esdk-image chain ..."; \
 	         $(MAKE) esdk-image; }
 
-build: ensure-image kas-container-script
+build: ensure-image kas-container-script ## Build Yocto SD card image for BOARD
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
 	$(KAS_RUN) build $(KAS_CONFIG)
 	@$(MAKE) --no-print-directory deploy-images DEPLOY_TS=$(DEPLOY_TS)
 
-rebuild-image: ensure-image kas-container-script
+rebuild-image: ensure-image kas-container-script ## cleansstate image recipe, then rebuild
 	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake -c cleansstate $(IMAGE_TARGET)"
 	$(KAS_RUN) build $(KAS_CONFIG)
 	@$(MAKE) --no-print-directory deploy-images DEPLOY_TS=$(DEPLOY_TS)
 
-shell: ensure-image kas-container-script
+shell: ensure-image kas-container-script ## Interactive kas shell
 	$(KAS_RUN) shell $(KAS_CONFIG)
 
-sdk: ensure-image kas-container-script
+sdk: ensure-image kas-container-script ## Build cross-toolchain SDK → deploy/sdk/
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
 	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake -c populate_sdk $(IMAGE_TARGET)"
 	@$(MAKE) --no-print-directory deploy-sdk DEPLOY_TS=$(DEPLOY_TS)
 
-esdk: ensure-image kas-container-script
+esdk: ensure-image kas-container-script ## Build extensible SDK     → deploy/esdk/
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
 	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake -c populate_sdk_ext $(IMAGE_TARGET)"
 	@$(MAKE) --no-print-directory deploy-esdk DEPLOY_TS=$(DEPLOY_TS)
 
 ## Build a .swu OTA update package from the latest rootfs.ext4 image
-swu: build
+swu: build ## Build .swu OTA package  [SWU_VERSION=YYYYMMDDHHMM]
 	$(eval ROOTFS := $(shell find $(BUILD_DIR)/tmp/deploy/images/$(MACHINE) \
 	    -name "vela-image-$(MACHINE)*.rootfs.ext4" 2>/dev/null \
 	    | sort -V | tail -1))
@@ -226,7 +228,7 @@ swu: build
 	@$(MAKE) --no-print-directory deploy-swu DEPLOY_TS=$(DEPLOY_TS) SWU_VERSION=$(SWU_VERSION)
 
 ## Flash to SD/eMMC.  Usage: make flash vela DEVICE=/dev/sdX
-flash:
+flash: ## Flash SD card  (requires DEVICE=/dev/sdX)
 ifndef DEVICE
 	$(error DEVICE is not set — example: make flash DEVICE=/dev/sdb)
 endif
@@ -275,18 +277,18 @@ deploy-swu:
 	 cp -L "$(BUILD_DIR)/$(BOARD)-$(SWU_VERSION).swu" "$$out/"; \
 	 echo "  Done: $$out"
 
-clean: clean-build
+clean: clean-build ## Remove build/
 
 clean-build:
 	rm -rf $(BUILD_DIR)
 
-clean-docker:
+clean-docker: ## Remove kas/sdk/esdk Docker images
 	docker rmi -f $(KAS_IMAGE) $(SDK_IMAGE) $(ESDK_IMAGE) 2>/dev/null || true
 
-clean-all: clean-build
+clean-all: clean-build ## Remove build/, downloads/, sstate-cache/
 	rm -rf $(DL_DIR) $(SSTATE_DIR)
 
-completion:
+completion: ## Install bash tab-completion
 	@RCFILE="$$HOME/.bashrc"; \
 	 LINE="source \"$(CURDIR)/vela-make-completion.bash\""; \
 	 if grep -qF "$$LINE" "$$RCFILE" 2>/dev/null; then \
@@ -296,32 +298,13 @@ completion:
 	     echo "Added to $$RCFILE — run: source $$RCFILE"; \
 	 fi
 
-help:
-	@printf "\nUsage: make <target> <board>\n"
-	@printf "\n  Examples:\n"
-	@printf "    make image  vela\n"
-	@printf "    make sdk    vela\n"
-	@printf "    make flash  vela DEVICE=/dev/sdb\n"
-	@printf "\nYocto build:\n"
-	@printf "  %-24s %s\n" "image"              "Build Yocto SD card image for BOARD"
-	@printf "  %-24s %s\n" "build"              "Build Yocto SD card image for BOARD"
-	@printf "  %-24s %s\n" "rebuild-image"      "cleansstate image recipe, then rebuild"
-	@printf "  %-24s %s\n" "sdk"                "Build cross-toolchain SDK → deploy/sdk/"
-	@printf "  %-24s %s\n" "esdk"               "Build extensible SDK     → deploy/esdk/"
-	@printf "  %-24s %s\n" "shell"              "Interactive kas shell"
-	@printf "  %-24s %s\n" "swu"                "Build .swu OTA package  [SWU_VERSION=YYYYMMDDHHMM]"
-	@printf "  %-24s %s\n" "flash"              "Flash SD card  (requires DEVICE=/dev/sdX)"
-	@printf "\nDocker images:\n"
-	@printf "  %-24s %s\n" "kas-image"          "Build/rebuild KAS build container"
-	@printf "  %-24s %s\n" "ensure-image"       "Build KAS image only when absent"
-	@printf "  %-24s %s\n" "sdk-image"          "Full chain: SDK build → stage → docker build → deploy"
-	@printf "  %-24s %s\n" "esdk-image"         "Full chain: eSDK build → stage → docker build → deploy"
-	@printf "\nClean:\n"
-	@printf "  %-24s %s\n" "clean"              "Remove build/"
-	@printf "  %-24s %s\n" "clean-docker"       "Remove kas/sdk/esdk Docker images"
-	@printf "  %-24s %s\n" "clean-all"          "Remove build/, downloads/, sstate-cache/"
-	@printf "\nUtilities:\n"
-	@printf "  %-24s %s\n" "completion"         "Install bash tab-completion"
-	@printf "\nBoards:\n"
-	@printf "  vela (QCS6490 RB3 Gen 2)\n"
-	@printf "\n"
+# ── Help ──────────────────────────────────────────────────────────────────────
+# Targets are self-documenting: text after `## ` on a target line is picked up
+# by `make help` automatically, so the listing can never drift from the rules.
+.PHONY: help
+help: ## Show this help
+	@printf '\n  \033[1m%s\033[0m\n' 'Vela-OS'
+	@printf '  Usage: make <target> [VAR=value ...]\n'
+	@printf '\n'
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_.\/-]+:.*?## / { printf "    \033[36m%-24s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@printf '\n'
