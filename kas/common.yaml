@@ -7,6 +7,8 @@ header:
     - repos/meta-qcom.yaml
     - repos/meta-swupdate.yaml
     - repos/meta-vela.yaml
+    - repos/vela-configuration.yaml
+    - repos/vela-instrumentation.yaml
 
 distro: poky
 target: vela-image
