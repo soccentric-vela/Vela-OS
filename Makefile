@@ -85,7 +85,7 @@ _ESDK_IMAGE_TAG  := $(lastword  $(subst :, ,$(ESDK_IMAGE)))
         kas-image image ensure-image \
         sdk-image ensure-sdk-image \
         esdk-image ensure-esdk-image \
-        kas-container-script shell flash sdk esdk swu \
+        kas-container-script shell test-wiring flash sdk esdk swu \
         deploy-images deploy-sdk deploy-esdk deploy-swu \
         clean clean-build clean-docker clean-all \
         completion help
@@ -162,6 +162,9 @@ rebuild-image: ensure-image kas-container-script ## cleansstate image recipe, th
 
 shell: ensure-image kas-container-script ## Interactive kas shell
 	$(KAS_RUN) shell $(KAS_CONFIG)
+
+test-wiring: ensure-image kas-container-script ## Bitbake-build just WebConfig + Instrumentation (skips the full image)
+	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake webconfigd webconfig-static webconfig-schemas webconfig-manifest instrumentation"
 
 sdk: ensure-image kas-container-script ## Build cross-toolchain SDK → deploy/sdk/
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
