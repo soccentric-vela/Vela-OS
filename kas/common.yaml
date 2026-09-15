@@ -18,6 +18,12 @@ local_conf_header:
     # Init manager
     INIT_MANAGER = "systemd"
 
+    # webconfigd talks to systemd over D-Bus via polkit (see its recipe's
+    # 50-webconfigd.polkit.rules). polkit is skipped unless this distro
+    # feature is enabled -- without it, RRECOMMENDS:webconfigd = "... polkit"
+    # has no buildable provider and the image fails to build outright.
+    DISTRO_FEATURES:append = " polkit"
+
     # Cap build parallelism.  With no explicit setting, bitbake would default
     # to 2x nproc (64 jobs on this host), which OOMs the memory-hungry gcc
     # bootstrap under cross-compilation (seen as cc1/cc1plus "undefined
