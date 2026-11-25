@@ -3,7 +3,7 @@ header:
 
 repos:
   meta-vela:
-    url: git@github.com:soccentric-vela/meta-vela.git
+    url: https://github.com/soccentric-vela/meta-vela.git
     branch: develop
     path: meta/meta-vela
     layers:
