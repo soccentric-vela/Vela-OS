@@ -38,8 +38,7 @@ local_conf_header:
     DL_DIR     ?= "${TOPDIR}/../cache/downloads"
     SSTATE_DIR ?= "${TOPDIR}/../cache/sstate-cache"
 
-    # SWUpdate: enable built-in Mongoose web server and progress IPC
-    PACKAGECONFIG:append:pn-swupdate = " webserver"
+    # SWUpdate: web server/UI intentionally not enabled
 
     # Required by Poky sanity checks (must match LOCALCONF_VERSION in poky)
     CONF_VERSION = "2"
