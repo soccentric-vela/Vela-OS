@@ -4,7 +4,9 @@ header:
 repos:
   poky:
     url: https://git.yoctoproject.org/git/poky
-    refspec: scarthgap
+    branch: scarthgap
+    # Pinned: meta-qcom's kernel patches (Dec 2024) no longer apply to newer linux-yocto 6.6.x.
+    commit: fd5231a5445f0a61d3a7678d1980a94dc1c80544
     layers:
       meta:
       meta-poky:

@@ -4,6 +4,7 @@ header:
 repos:
   meta-qcom:
     url: https://github.com/qualcomm-linux/meta-qcom
-    refspec: scarthgap
+    branch: scarthgap
+    commit: ec80a36bce11d8182b4bb2a6fa0359adfeccde0a
     layers:
       .:

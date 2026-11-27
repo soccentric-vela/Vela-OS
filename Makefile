@@ -164,7 +164,7 @@ shell: ensure-image kas-container-script ## Interactive kas shell
 	$(KAS_RUN) shell $(KAS_CONFIG)
 
 test-wiring: ensure-image kas-container-script ## Bitbake-build just WebConfig + Instrumentation (skips the full image)
-	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake webconfigd webconfig-static webconfig-schemas webconfig-manifest instrumentation"
+	$(KAS_RUN) shell $(KAS_CONFIG) -c "bitbake instrumentation"
 
 sdk: ensure-image kas-container-script ## Build cross-toolchain SDK → deploy/sdk/
 	@mkdir -p $(BUILD_DIR) $(DL_DIR) $(SSTATE_DIR)
